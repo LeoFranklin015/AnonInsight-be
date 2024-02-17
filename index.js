@@ -14,10 +14,12 @@ const PORT = process.env.PORT || 3000;
 let minDfa = [];
 let reveals = [[]];
 let circom = "";
-const MONGO_URI = process.env.MONGO_URL || "";
+const MONGO_URI =
+  process.env.MONGO_URL ||
+  "mongodb+srv://LeoFranklin:leoleoleo@stackoverflow-clone.zckevmk.mongodb.net/?retryWrites=true&w=majority";
 
 let db;
-let formId = 0;
+let formId = 1;
 MongoClient.connect(MONGO_URI).then((client) => {
   db = client.db("AnonInsight"); // Now db can be used to write direct MongoDB queries
   console.log("MongoDB connected successfully");
@@ -39,10 +41,11 @@ async function saveFormAndCircuit(circuitId) {
     const result = await db.collection("feedbacks").insertOne({
       form_id: formId,
       circuit_id: circuitId,
+      feedback: [],
     });
     console.log("Form and circuit saved:", result);
-  } finally {
-    await client.close();
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -70,6 +73,28 @@ app.post("/circuit_id", async (req, res) => {
     res.send({ circuit_id: circuit.circuit_id });
   } catch (error) {
     console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/feedback", async (req, res) => {
+  try {
+    const { id, feedback } = req.body;
+    if (!id || !feedback) {
+      return res.status(400).send("ID and feedback are required.");
+    }
+    const result = await db
+      .collection("feedbacks")
+      .findOneAndUpdate(
+        { form_id: id },
+        { $push: { feedback: feedback } },
+        { returnDocument: "after" }
+      );
+
+    console.log("Feedback added:", result.value);
+    res.send("Feedback added successfully");
+  } catch (error) {
+    console.log(error);
     res.status(500).send("Internal Server Error");
   }
 });
