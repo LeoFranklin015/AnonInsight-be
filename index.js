@@ -7,6 +7,9 @@ import fs from "fs";
 import bodyParser from "body-parser";
 import { MongoClient } from "mongodb";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const app = express();
 app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
@@ -14,9 +17,7 @@ const PORT = process.env.PORT || 3000;
 let minDfa = [];
 let reveals = [[]];
 let circom = "";
-const MONGO_URI =
-  process.env.MONGO_URL ||
-  "mongodb+srv://LeoFranklin:leoleoleo@stackoverflow-clone.zckevmk.mongodb.net/?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URL || "";
 
 let db;
 let formId = 1;
