@@ -269,13 +269,15 @@ export function genCircomAllstr(graph_json, template_name, reveals, regex) {
   //   declarations.push(
   //     `include "@zk-email/zk-regex-circom/circuits/regex_helpers.circom";\n`
   //   );
+  // declarations.push(
+  //   `include "./node_modules/circomlib/circuits/comparators.circom";\n`
+  // );
+  // declarations.push(
+  //   `include "./node_modules/circomlib/circuits/gates.circom";\n`
+  // );
   declarations.push(
-    `include "./node_modules/circomlib/circuits/comparators.circom";\n`
+    `pragma circom 2.1.5;\ninclude "@zk-email/circuits/regexes/regex_helpers.circom";\n`
   );
-  declarations.push(
-    `include "./node_modules/circomlib/circuits/gates.circom";\n`
-  );
-  // declarations.push(`pragma circom 2.1.5;\ninclude "@zk-email/circuits/regexes/regex_helpers.circom";\n`);
   declarations.push(`// regex: ${regex}`);
 
   //multior
