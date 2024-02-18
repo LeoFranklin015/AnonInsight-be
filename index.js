@@ -15,7 +15,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 let minDfa = [];
 let reveals = [[]];
@@ -78,6 +78,7 @@ app.post("/circuit_id", async (req, res) => {
 
     // Create circuit with the provided regex
     const circuit = await sindri.createCircuit("./circuits/");
+    console.log(circuit);
     // Generate the circuit and retrieve circuit_id
     const createdObject = await saveFormAndCircuit(
       circuit.circuit_id,
