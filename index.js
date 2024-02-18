@@ -38,29 +38,39 @@ function generate(re) {
   console.log("re writted");
 }
 
-async function saveFormAndCircuit(circuitId) {
+async function saveFormAndCircuit(circuitId, walletAdd) {
   try {
     formId = formId + 1;
-    await db.collection("feedbacks");
+    console.log("Form ID:", formId);
     const result = await db.collection("feedbacks").insertOne({
       form_id: formId,
+      walletAddress: walletAdd,
       circuit_id: circuitId,
       feedback: [],
     });
     console.log("Form and circuit saved:", result);
+
+    const createdObject = {
+      form_id: formId,
+      walletAddress: walletAdd,
+      circuit_id: circuitId,
+    };
+    console.log("Created Object:", createdObject);
+    return createdObject;
   } catch (error) {
-    console.log(error);
+    console.log("Error saving form and circuit:", error);
+    throw error;
   }
 }
 
 app.post("/circuit_id", async (req, res) => {
   try {
-    const { regex, apiKey } = req.body;
+    const { regex, apiKey, walletAddress } = req.body;
     console.log(regex);
     console.log(apiKey);
 
     // Check if regex and apiKey are provided
-    if (!regex || !apiKey) {
+    if (!regex || !apiKey || !walletAddress) {
       return res.status(400).send("Regex and apiKey are required.");
     }
     generate(regex); // Pass regex to the generate() function
@@ -69,12 +79,15 @@ app.post("/circuit_id", async (req, res) => {
     // Create circuit with the provided regex
     const circuit = await sindri.createCircuit("./circuits/");
     // Generate the circuit and retrieve circuit_id
-    saveFormAndCircuit(circuit.circuit_id);
+    const createdObject = await saveFormAndCircuit(
+      circuit.circuit_id,
+      walletAddress
+    );
     // const circuit = await generateCircuit(regex, apiKey);
 
     // Return the circuit_id
     console.log(circuit.circuit_id);
-    res.send({ circuit_id: circuit.circuit_id });
+    res.send(createdObject);
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("Internal Server Error");
