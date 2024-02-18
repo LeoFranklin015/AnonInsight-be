@@ -104,7 +104,7 @@ app.post("/feedback", async (req, res) => {
 
     const result = await db
       .collection("feedbacks")
-      .findOneAndUpdate({ form_id: id }, { $push: { feedback: feedback } });
+      .findOneAndUpdate({ circuit_id: id }, { $push: { feedback: feedback } });
 
     // if (!result || !result.value) {
     //   console.log(
@@ -116,9 +116,12 @@ app.post("/feedback", async (req, res) => {
     //       "Feedback not added. Document not found or update operation failed."
     //     );
     // }
-
+    if (result) {
+      res.send("Feedback added successfully");
+    } else {
+      res.status(500).send("NO Id found");
+    }
     // console.log("Feedback added:", result.value);
-    res.send("Feedback added successfully");
   } catch (error) {
     console.error("Error adding feedback:", error);
     res.status(500).send("Internal Server Error");
