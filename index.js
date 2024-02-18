@@ -97,21 +97,52 @@ app.post("/circuit_id", async (req, res) => {
 app.post("/feedback", async (req, res) => {
   try {
     const { id, feedback } = req.body;
+    console.log(id, feedback);
     if (!id || !feedback) {
       return res.status(400).send("ID and feedback are required.");
     }
+
     const result = await db
       .collection("feedbacks")
-      .findOneAndUpdate(
-        { form_id: id },
-        { $push: { feedback: feedback } },
-        { returnDocument: "after" }
-      );
+      .findOneAndUpdate({ form_id: id }, { $push: { feedback: feedback } });
 
-    console.log("Feedback added:", result.value);
+    // if (!result || !result.value) {
+    //   console.log(
+    //     "Feedback not added. Document not found or update operation failed."
+    //   );
+    //   return res
+    //     .status(404)
+    //     .send(
+    //       "Feedback not added. Document not found or update operation failed."
+    //     );
+    // }
+
+    // console.log("Feedback added:", result.value);
     res.send("Feedback added successfully");
   } catch (error) {
-    console.log(error);
+    console.error("Error adding feedback:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/feedbacks/:walletAddress", async (req, res) => {
+  try {
+    console.log("object");
+    const { walletAddress } = req.params;
+    const feedbacks = await db
+      .collection("feedbacks")
+      .find({ walletAddress })
+      .toArray();
+
+    if (feedbacks.length === 0) {
+      return res
+        .status(404)
+        .send("No feedbacks found for the provided wallet address.");
+    }
+
+    res.json(feedbacks);
+  } catch (error) {
+    console.error("Error:", error);
     res.status(500).send("Internal Server Error");
   }
 });
